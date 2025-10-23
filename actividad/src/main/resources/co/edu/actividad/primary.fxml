@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="202.0" prefWidth="203.0" spacing="20.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.poli.actividad9.PrimaryController">
+<VBox alignment="CENTER" prefHeight="202.0" prefWidth="203.0" spacing="20.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="co.edu.actividad.PrimaryController">
    <children>
       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="105.0" prefWidth="175.0" text="Colección Monedas" textFill="#a95454">
          <font>
