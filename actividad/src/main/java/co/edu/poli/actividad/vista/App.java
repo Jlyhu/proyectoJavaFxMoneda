@@ -1,4 +1,4 @@
-package co.edu.actividad.vista;
+package co.edu.poli.actividad.vista;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,16 +9,22 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * JavaFX App
+ * JavaFX App - Sistema de Gestión de Monedas
+ * 
+ * @author Juliana
+ * @version 1.0
  */
 public class App extends Application {
-
+    
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        // Cargar el archivo FXML del formulario de monedas
+    	scene = new Scene(loadFXML("MonedaFormulario"), 900, 700);
+        stage.setTitle("Sistema de Gestión de Monedas - CRUD");
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
@@ -34,5 +40,4 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
-
 }

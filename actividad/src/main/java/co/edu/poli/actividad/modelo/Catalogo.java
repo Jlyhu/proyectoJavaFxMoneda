@@ -1,4 +1,4 @@
-package co.edu.actividad.modelo;
+package co.edu.poli.actividad.modelo;
 
 import java.io.Serializable;
 import java.util.Arrays;

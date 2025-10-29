@@ -1,5 +1,5 @@
-package co.edu.actividad.servicios;
-import co.edu.actividad.modelo.Moneda;
+package co.edu.poli.actividad.servicios;
+import co.edu.poli.actividad.modelo.Moneda;
 
 /**
  * Interfaz que define las operaciones de serialización y deserialización

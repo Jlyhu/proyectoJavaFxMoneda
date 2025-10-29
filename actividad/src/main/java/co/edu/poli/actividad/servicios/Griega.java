@@ -1,7 +1,7 @@
-package co.edu.actividad.servicios;
-import co.edu.actividad.modelo.Antigua;
-import co.edu.actividad.modelo.Pais;
-import co.edu.actividad.modelo.Protector;
+package co.edu.poli.actividad.servicios;
+import co.edu.poli.actividad.modelo.Antigua;
+import co.edu.poli.actividad.modelo.Pais;
+import co.edu.poli.actividad.modelo.Protector;
 
 /**
  * Representa una moneda griega antigua.

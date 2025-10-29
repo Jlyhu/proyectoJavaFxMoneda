@@ -1,6 +1,6 @@
-package co.edu.actividad.servicios;
+package co.edu.poli.actividad.servicios;
 
-import co.edu.actividad.modelo.Moneda;
+import co.edu.poli.actividad.modelo.Moneda;
 
 /**
  * Interfaz que define las operaciones CRUD (Crear, Leer, Actualizar, Eliminar) 
