@@ -25,37 +25,16 @@ public class MonedaControlador {
     @FXML private Label lbl1;
     @FXML private Label lbl2;
     
-    @FXML private TextField txt1; // Serial
-    @FXML private TextField txt2; // Material
-    @FXML private TextField txt3; // Tamaño
-    @FXML private TextField txt4; // Valor
-    @FXML private TextField txt5; // Año Creación
-    
-    @FXML private RadioButton rb1; // Antigua
-    @FXML private RadioButton rb2; // Conmemorativa
-    @FXML private RadioButton rb3; // Griega
-    @FXML private ToggleGroup categoria;
-    
-    @FXML private ComboBox<String> cmb1; // Tipo
-    @FXML private ComboBox<String> cmb2; // Rareza
-    @FXML private ComboBox<String> cmb3; // Época
-    @FXML private ComboBox<String> cmbPais;
-    @FXML private ComboBox<String> cmbProtector;
-    
-    @FXML private CheckBox chkbox1;
-    @FXML private CheckBox chkbox2;
-    @FXML private CheckBox chkbox3;
-    @FXML private Group GroupChkBox;
-    
-    @FXML private TableColumn<Moneda, String> column1;
-    @FXML private TableColumn<Moneda, String> column2;
-    @FXML private TableColumn<Moneda, String> column3;
-    @FXML private TableColumn<Moneda, String> column4;
-    @FXML private TableColumn<Moneda, String> column5;
-    @FXML private TableColumn<Moneda, String> column6;
-    @FXML private TableColumn<Moneda, String> column7;
-    
+    @FXML private TextField txtSerial, txtMaterial, txtTamano, txtValor;
+    @FXML private DatePicker datePickerAnio;
+    @FXML private ComboBox<String> cmbTipo, cmbRareza, cmbEpoca, cmbPais, cmbProtector;
+    @FXML private RadioButton rbAntigua, rbConmemorativa, rbGriega;
+    @FXML private CheckBox chkEdicionLimitada, chkAutenticada, chkConservacion;
     @FXML private TableView<Moneda> tblView;
+    @FXML private TableColumn<Moneda, String> columnSerial, columnMaterial, columnTamano, columnValor, columnAnio, columnTipo, columnCategoria, columnPais, columnProtector, columnEdicion;
+    
+    // ⭐ ESTA ES LA LÍNEA QUE FALTABA ⭐
+    @FXML private ToggleGroup categoria;
     
     ObservableList<Moneda> monedas;
     ImplementacionOperacionCRUD crud;
@@ -67,35 +46,38 @@ public class MonedaControlador {
     public void initialize() {
         monedas = FXCollections.observableArrayList();
         crud = new ImplementacionOperacionCRUD();
-        
+
         // Cargar datos guardados al iniciar
         cargarDatosIniciales();
-        
+
         // Configurar ComboBoxes
         ObservableList<String> listTipo = FXCollections.observableArrayList(
             "Comercial", "Conmemorativa", "Histórica", "Colección"
         );
-        cmb1.setItems(listTipo);
-        
+        cmbTipo.setItems(listTipo);
+
         ObservableList<String> listRareza = FXCollections.observableArrayList(
             "Común", "Rara", "Muy rara", "Única"
         );
-        cmb2.setItems(listRareza);
-        
+        cmbRareza.setItems(listRareza);
+
         ObservableList<String> listEpoca = FXCollections.observableArrayList(
             "Antigua", "Colonial", "Moderna", "Contemporánea"
         );
-        cmb3.setItems(listEpoca);
-        
+        cmbEpoca.setItems(listEpoca);
+
         ObservableList<String> listPais = FXCollections.observableArrayList(
             "Colombia", "México", "España", "Grecia", "Italia", "Otro"
         );
         cmbPais.setItems(listPais);
-        
+
         ObservableList<String> listProtector = FXCollections.observableArrayList(
             "Plástico-Caja", "Acrílico-Cápsula", "Metal-Estuche", "Ninguno"
         );
         cmbProtector.setItems(listProtector);
+        
+        // Actualizar contador de registros
+        actualizarContador();
     }
     
     private void cargarDatosIniciales() {
@@ -115,6 +97,12 @@ public class MonedaControlador {
             System.out.println("No hay datos previos: " + e.getMessage());
         }
     }
+    
+    private void actualizarContador() {
+        if (lbl2 != null) {
+            lbl2.setText(String.valueOf(monedas.size()));
+        }
+    }
 
     @FXML
     void press1(ActionEvent event) {
@@ -123,63 +111,60 @@ public class MonedaControlador {
             if (!validarCampos()) {
                 throw new Exception("Por favor complete todos los campos obligatorios");
             }
-            
+
             RadioButton rbaux = (RadioButton) categoria.getSelectedToggle();
             if (rbaux == null) {
                 throw new Exception("Debe seleccionar una categoría");
             }
-            
+
             // Crear protector y país
             String[] protectorData = cmbProtector.getValue().split("-");
-            Protector protector = new Protector("P-" + txt1.getText(), 
-                                               protectorData[0], 
+            Protector protector = new Protector("P-" + txtSerial.getText(),
+                                               protectorData[0],
                                                protectorData.length > 1 ? protectorData[1] : "");
-            
-            Pais pais = new Pais(cmbPais.getValue().substring(0, 3).toUpperCase(), 
+
+            Pais pais = new Pais(cmbPais.getValue().substring(0, 3).toUpperCase(),
                                 cmbPais.getValue());
-            
-            int anio = Integer.parseInt(txt5.getText());
-            
+
+            int anio = datePickerAnio.getValue().getYear();
+
             Moneda nuevaMoneda = null;
-            
+
             // Crear según categoría seleccionada
             if (rbaux.getText().equals("Antigua")) {
                 nuevaMoneda = new Antigua(
-                    txt1.getText(), txt2.getText(), txt3.getText(), txt4.getText(),
-                    cmb1.getValue(), cmb2.getValue(), cmb3.getValue(),
-                    anio, chkbox2.isSelected(), protector, pais,
-                    "Siglo " + (anio/100), chkbox3.isSelected() ? "Excelente" : "Buena"
+                    txtSerial.getText(), txtMaterial.getText(), txtTamano.getText(), txtValor.getText(),
+                    cmbTipo.getValue(), cmbRareza.getValue(), cmbEpoca.getValue(),
+                    anio, chkAutenticada.isSelected(), protector, pais,
+                    "Siglo " + (anio / 100), chkConservacion.isSelected() ? "Excelente" : "Buena"
                 );
             } else if (rbaux.getText().equals("Conmemorativa")) {
                 nuevaMoneda = new Conmemorativa(
-                    txt1.getText(), txt2.getText(), txt3.getText(), txt4.getText(),
-                    cmb1.getValue(), cmb2.getValue(), cmb3.getValue(),
-                    anio, chkbox2.isSelected(), protector, pais,
-                    chkbox1.isSelected(), "Evento " + anio
+                    txtSerial.getText(), txtMaterial.getText(), txtTamano.getText(), txtValor.getText(),
+                    cmbTipo.getValue(), cmbRareza.getValue(), cmbEpoca.getValue(),
+                    anio, chkAutenticada.isSelected(), protector, pais,
+                    chkEdicionLimitada.isSelected(), "Evento " + anio
                 );
             } else if (rbaux.getText().equals("Griega")) {
                 nuevaMoneda = new Griega(
-                    txt1.getText(), txt2.getText(), txt3.getText(), txt4.getText(),
-                    cmb1.getValue(), cmb2.getValue(), cmb3.getValue(),
-                    anio, chkbox2.isSelected(), protector, pais,
-                    "Siglo " + (anio/100), chkbox3.isSelected() ? "Excelente" : "Buena",
+                    txtSerial.getText(), txtMaterial.getText(), txtTamano.getText(), txtValor.getText(),
+                    cmbTipo.getValue(), cmbRareza.getValue(), cmbEpoca.getValue(),
+                    anio, chkAutenticada.isSelected(), protector, pais,
+                    "Siglo " + (anio / 100), chkConservacion.isSelected() ? "Excelente" : "Buena",
                     cmbPais.getValue(), "Período clásico"
                 );
             }
-            
+
             if (nuevaMoneda != null) {
                 a.setContentText(crud.create(nuevaMoneda));
                 monedas.add(nuevaMoneda);
                 loadTable();
+                actualizarContador();
                 clear();
             }
-            
+
             a.show();
-            
-        } catch (NumberFormatException e) {
-            a.setAlertType(AlertType.WARNING);
-            a.setContentText("El año debe ser un número válido");
-            a.show();
+
         } catch (Exception e) {
             a.setAlertType(AlertType.WARNING);
             a.setContentText(e.getMessage());
@@ -211,6 +196,7 @@ public class MonedaControlador {
                 }
                 
                 loadTable();
+                actualizarContador();
                 a.setContentText("Archivo cargado exitosamente");
             } else {
                 a.setAlertType(AlertType.WARNING);
@@ -228,67 +214,68 @@ public class MonedaControlador {
         Alert a = new Alert(AlertType.CONFIRMATION);
         try {
             Moneda oldMoneda = tblView.getSelectionModel().getSelectedItem();
-            
+
             if (oldMoneda == null) {
                 throw new Exception("Debe seleccionar una moneda de la tabla");
             }
-            
+
             RadioButton rbaux = (RadioButton) categoria.getSelectedToggle();
             if (rbaux == null) {
                 throw new Exception("Debe seleccionar una categoría");
             }
-            
+
             // Crear protector y país
             String[] protectorData = cmbProtector.getValue().split("-");
-            Protector protector = new Protector("P-" + oldMoneda.getSerial(), 
-                                               protectorData[0], 
+            Protector protector = new Protector("P-" + oldMoneda.getSerial(),
+                                               protectorData[0],
                                                protectorData.length > 1 ? protectorData[1] : "");
-            
-            Pais pais = new Pais(cmbPais.getValue().substring(0, 3).toUpperCase(), 
+
+            Pais pais = new Pais(cmbPais.getValue().substring(0, 3).toUpperCase(),
                                 cmbPais.getValue());
-            
-            int anio = Integer.parseInt(txt5.getText());
-            
+
+            int anio = datePickerAnio.getValue().getYear();
+
             Moneda monedaActualizada = null;
-            
+
             if (rbaux.getText().equals("Antigua")) {
                 monedaActualizada = new Antigua(
-                    oldMoneda.getSerial(), txt2.getText(), txt3.getText(), txt4.getText(),
-                    cmb1.getValue(), cmb2.getValue(), cmb3.getValue(),
-                    anio, chkbox2.isSelected(), protector, pais,
-                    "Siglo " + (anio/100), chkbox3.isSelected() ? "Excelente" : "Buena"
+                    oldMoneda.getSerial(), txtMaterial.getText(), txtTamano.getText(), txtValor.getText(),
+                    cmbTipo.getValue(), cmbRareza.getValue(), cmbEpoca.getValue(),
+                    anio, chkAutenticada.isSelected(), protector, pais,
+                    "Siglo " + (anio / 100), chkConservacion.isSelected() ? "Excelente" : "Buena"
                 );
-            } else if (monedaActualizada instanceof Conmemorativa) {
+            } else if (rbaux.getText().equals("Conmemorativa")) {
                 monedaActualizada = new Conmemorativa(
-                    oldMoneda.getSerial(), txt2.getText(), txt3.getText(), txt4.getText(),
-                    cmb1.getValue(), cmb2.getValue(), cmb3.getValue(),
-                    anio, chkbox2.isSelected(), protector, pais,
-                    chkbox1.isSelected(), "Evento " + anio
+                    oldMoneda.getSerial(), txtMaterial.getText(), txtTamano.getText(), txtValor.getText(),
+                    cmbTipo.getValue(), cmbRareza.getValue(), cmbEpoca.getValue(),
+                    anio, chkAutenticada.isSelected(), protector, pais,
+                    chkEdicionLimitada.isSelected(), "Evento " + anio
                 );
             } else if (rbaux.getText().equals("Griega")) {
                 monedaActualizada = new Griega(
-                    oldMoneda.getSerial(), txt2.getText(), txt3.getText(), txt4.getText(),
-                    cmb1.getValue(), cmb2.getValue(), cmb3.getValue(),
-                    anio, chkbox2.isSelected(), protector, pais,
-                    "Siglo " + (anio/100), chkbox3.isSelected() ? "Excelente" : "Buena",
+                    oldMoneda.getSerial(), txtMaterial.getText(), txtTamano.getText(), txtValor.getText(),
+                    cmbTipo.getValue(), cmbRareza.getValue(), cmbEpoca.getValue(),
+                    anio, chkAutenticada.isSelected(), protector, pais,
+                    "Siglo " + (anio / 100), chkConservacion.isSelected() ? "Excelente" : "Buena",
                     cmbPais.getValue(), "Período clásico"
                 );
             }
-            
+
             if (monedaActualizada != null) {
                 monedas.set(monedas.indexOf(oldMoneda), monedaActualizada);
                 a.setContentText(crud.update(oldMoneda.getSerial(), monedaActualizada));
                 loadTable();
+                actualizarContador();
                 clear();
             }
-            
+
         } catch (Exception e) {
             a.setAlertType(AlertType.WARNING);
             a.setContentText("Error: " + e.getMessage());
         }
         a.show();
     }
-
+    
     @FXML
     void press5(ActionEvent event) {
         Alert a = new Alert(AlertType.CONFIRMATION);
@@ -306,6 +293,7 @@ public class MonedaControlador {
                 crud.delete(m.getSerial());
                 monedas.remove(m);
                 loadTable();
+                actualizarContador();
                 clear();
                 
                 a = new Alert(AlertType.INFORMATION);
@@ -320,90 +308,96 @@ public class MonedaControlador {
     }
 
     void loadTable() {
-        column1.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getSerial()));
-        column2.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaterial()));
-        column3.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTamano()));
-        column4.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getValor()));
-        column5.setCellValueFactory(cell -> new SimpleStringProperty(String.valueOf(cell.getValue().getAnoCreacion())));
-        column6.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTipo()));
-        column7.setCellValueFactory(cell -> {
-            String categoria = "";
-            if (cell.getValue() instanceof Griega) categoria = "Griega";
-            else if (cell.getValue() instanceof Conmemorativa) categoria = "Conmemorativa";
-            else if (cell.getValue() instanceof Antigua) categoria = "Antigua";
-            return new SimpleStringProperty(categoria);
+        columnSerial.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getSerial()));
+        columnMaterial.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaterial()));
+        columnTamano.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTamano()));
+        columnValor.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getValor()));
+        columnAnio.setCellValueFactory(cell -> new SimpleStringProperty(String.valueOf(cell.getValue().getAnoCreacion())));
+        columnTipo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTipo()));
+        columnCategoria.setCellValueFactory(cell -> {
+            if (cell.getValue() instanceof Griega) return new SimpleStringProperty("Griega");
+            if (cell.getValue() instanceof Conmemorativa) return new SimpleStringProperty("Conmemorativa");
+            if (cell.getValue() instanceof Antigua) return new SimpleStringProperty("Antigua");
+            return new SimpleStringProperty("");
         });
-        
+        columnPais.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getPais() != null ? cell.getValue().getPais().getNombre() : ""));
+        columnProtector.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProtector() != null ? cell.getValue().getProtector().toString() : ""));
+        columnEdicion.setCellValueFactory(cell -> {
+            if (cell.getValue() instanceof Conmemorativa) {
+                return new SimpleStringProperty(((Conmemorativa) cell.getValue()).isEsEdicionLimitada() ? "Sí" : "No");
+            }
+            return new SimpleStringProperty("-");
+        });
         tblView.setItems(monedas);
     }
 
     void clear() {
-        txt1.setText("");
-        txt2.setText("");
-        txt3.setText("");
-        txt4.setText("");
-        txt5.setText("");
-        rb1.setSelected(true);
-        cmb1.setValue(null);
-        cmb2.setValue(null);
-        cmb3.setValue(null);
+        txtSerial.clear();
+        txtMaterial.clear();
+        txtTamano.clear();
+        txtValor.clear();
+        datePickerAnio.setValue(null);
+        rbAntigua.setSelected(true);
+        cmbTipo.setValue(null);
+        cmbRareza.setValue(null);
+        cmbEpoca.setValue(null);
         cmbPais.setValue(null);
         cmbProtector.setValue(null);
-        chkbox1.setSelected(false);
-        chkbox2.setSelected(false);
-        chkbox3.setSelected(false);
+        chkEdicionLimitada.setSelected(false);
+        chkAutenticada.setSelected(false);
+        chkConservacion.setSelected(false);
     }
     
     private boolean validarCampos() {
-        return txt1.getText() != null && !txt1.getText().isEmpty() &&
-               txt2.getText() != null && !txt2.getText().isEmpty() &&
-               txt3.getText() != null && !txt3.getText().isEmpty() &&
-               txt4.getText() != null && !txt4.getText().isEmpty() &&
-               txt5.getText() != null && !txt5.getText().isEmpty() &&
-               cmb1.getValue() != null &&
-               cmb2.getValue() != null &&
-               cmb3.getValue() != null &&
+        return txtSerial.getText() != null && !txtSerial.getText().isEmpty() &&
+               txtMaterial.getText() != null && !txtMaterial.getText().isEmpty() &&
+               txtTamano.getText() != null && !txtTamano.getText().isEmpty() &&
+               txtValor.getText() != null && !txtValor.getText().isEmpty() &&
+               datePickerAnio.getValue() != null &&
+               cmbTipo.getValue() != null &&
+               cmbRareza.getValue() != null &&
+               cmbEpoca.getValue() != null &&
                cmbPais.getValue() != null &&
                cmbProtector.getValue() != null;
     }
-
+    
     @FXML
     void displaySelected(MouseEvent event) {
         try {
             Moneda moneda = tblView.getSelectionModel().getSelectedItem();
-            
+
             if (moneda == null) return;
-            
-            txt1.setText(moneda.getSerial());
-            txt2.setText(moneda.getMaterial());
-            txt3.setText(moneda.getTamano());
-            txt4.setText(moneda.getValor());
-            txt5.setText(String.valueOf(moneda.getAnoCreacion()));
-            cmb1.setValue(moneda.getTipo());
-            cmb2.setValue(moneda.getRareza());
-            cmb3.setValue(moneda.getEpoca());
-            
+
+            txtSerial.setText(moneda.getSerial());
+            txtMaterial.setText(moneda.getMaterial());
+            txtTamano.setText(moneda.getTamano());
+            txtValor.setText(moneda.getValor());
+            datePickerAnio.setValue(java.time.LocalDate.of(moneda.getAnoCreacion(), 1, 1));
+            cmbTipo.setValue(moneda.getTipo());
+            cmbRareza.setValue(moneda.getRareza());
+            cmbEpoca.setValue(moneda.getEpoca());
+
             if (moneda.getPais() != null) {
                 cmbPais.setValue(moneda.getPais().getNombre());
             }
-            
+
             if (moneda.getProtector() != null) {
-                cmbProtector.setValue(moneda.getProtector().getMaterial() + "-" + 
+                cmbProtector.setValue(moneda.getProtector().getMaterial() + "-" +
                                      moneda.getProtector().getTipo());
             }
-            
+
             // Seleccionar categoría
             if (moneda instanceof Griega) {
-                categoria.selectToggle(rb3);
+                categoria.selectToggle(rbGriega);
             } else if (moneda instanceof Conmemorativa) {
-                categoria.selectToggle(rb2);
-                chkbox1.setSelected(((Conmemorativa)moneda).isEsEdicionLimitada());
+                categoria.selectToggle(rbConmemorativa);
+                chkEdicionLimitada.setSelected(((Conmemorativa) moneda).isEsEdicionLimitada());
             } else if (moneda instanceof Antigua) {
-                categoria.selectToggle(rb1);
+                categoria.selectToggle(rbAntigua);
             }
-            
-            chkbox2.setSelected(moneda.isEsAutentica());
-            
+
+            chkAutenticada.setSelected(moneda.isEsAutentica());
+
         } catch (Exception e) {
             Alert a = new Alert(AlertType.WARNING);
             a.setContentText("Error al cargar datos: " + e.getMessage());
